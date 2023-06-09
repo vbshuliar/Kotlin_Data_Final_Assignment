@@ -9,13 +9,26 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -45,7 +58,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
             LittleLemonTheme {
+
                 // add databaseMenuItems code here
 
                 // add orderMenuItems variable here
@@ -63,12 +78,31 @@ class MainActivity : ComponentActivity() {
                     )
 
                     // add Button code here
-
+                    Button(modifier = Modifier
+                        .width(200.dp)
+                        .align(CenterHorizontally),
+                        onClick = { /*TODO*/ }) {
+                        Text(text = "Tap to Order By Name")
+                    }
                     // add searchPhrase variable here
 
                     // Add OutlinedTextField
+                    var textState by remember { mutableStateOf(TextFieldValue()) }
 
-                    // add is not empty check here
+                    OutlinedTextField(
+                        value = textState,
+                        onValueChange = { textState = it },
+                        modifier = Modifier
+                            .align(CenterHorizontally),
+                        label = { Text(text = "Search") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search Icon"
+                            )
+                        },
+                    )
+                    MenuItemsList(items = databaseMenuItems)
                 }
             }
         }
