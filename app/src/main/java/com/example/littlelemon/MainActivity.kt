@@ -13,11 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,7 +25,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
@@ -59,13 +55,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val databaseMenuItems by database.menuItemDao().getAll().observeAsState(emptyList())
+            var orderMenuItems by remember {
+                mutableStateOf(false)
+            }
+            var menuItems: List<MenuItemRoom> = if (orderMenuItems) {
+                databaseMenuItems.sortedBy { it.title }
+            } else {
+                databaseMenuItems
+            }
             LittleLemonTheme {
 
-                // add databaseMenuItems code here
-
-                // add orderMenuItems variable here
-
-                // add menuItems variable here
 
                 Column(
                     modifier = Modifier
@@ -77,32 +76,32 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(50.dp)
                     )
 
-                    // add Button code here
                     Button(modifier = Modifier
                         .width(200.dp)
                         .align(CenterHorizontally),
-                        onClick = { /*TODO*/ }) {
+                        onClick = { orderMenuItems = true }) {
                         Text(text = "Tap to Order By Name")
                     }
-                    // add searchPhrase variable here
-
-                    // Add OutlinedTextField
-                    var textState by remember { mutableStateOf(TextFieldValue()) }
+                    var searchPhrase by remember {
+                        mutableStateOf("")
+                    }
 
                     OutlinedTextField(
-                        value = textState,
-                        onValueChange = { textState = it },
+                        value = searchPhrase,
+                        onValueChange = { searchPhrase = it },
                         modifier = Modifier
-                            .align(CenterHorizontally),
-                        label = { Text(text = "Search") },
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search Icon"
-                            )
+                            .fillMaxWidth()
+                            .padding(start = 50.dp, end = 50.dp),
+                        label = {
+                            Text(text = "Search")
                         },
                     )
-                    MenuItemsList(items = databaseMenuItems)
+                    menuItems = if (searchPhrase.isNotEmpty()) {
+                        menuItems.filter { it.title.contains(searchPhrase) }
+                    } else {
+                        databaseMenuItems
+                    }
+                    MenuItemsList(items = menuItems)
                 }
             }
         }
