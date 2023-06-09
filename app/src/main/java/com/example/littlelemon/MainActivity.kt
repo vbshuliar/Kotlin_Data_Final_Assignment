@@ -58,11 +58,7 @@ class MainActivity : ComponentActivity() {
             var orderMenuItems by remember {
                 mutableStateOf(false)
             }
-            var menuItems: List<MenuItemRoom> = if (orderMenuItems) {
-                databaseMenuItems.sortedBy { it.title }
-            } else {
-                databaseMenuItems
-            }
+
             LittleLemonTheme {
 
 
@@ -96,11 +92,16 @@ class MainActivity : ComponentActivity() {
                             Text(text = "Search")
                         },
                     )
-                    menuItems = if (searchPhrase.isNotEmpty()) {
-                        menuItems.filter { it.title.contains(searchPhrase) }
+                    var menuItems = if (orderMenuItems) {
+                        databaseMenuItems.sortedBy { it.title }
                     } else {
                         databaseMenuItems
                     }
+
+                    if (searchPhrase.isNotEmpty()) {
+                        menuItems = menuItems.filter { it.title.contains(searchPhrase) }
+                    }
+
                     MenuItemsList(items = menuItems)
                 }
             }
